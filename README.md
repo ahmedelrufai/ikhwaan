@@ -268,3 +268,13 @@ If a payment succeeds after the balance has changed, exceeds the remaining balan
 Checks cover partial/final repayments, loan ownership, funding state, amount limits, pending checkout reuse, gateway response validation, mismatched verification details, replay/idempotency, membership separation and late-payment exceptions. The isolated API harness uses a fake key and signed local webhook to verify actual ledger updates. No real Paystack charge or refund was executed. Provider requests are mocked in adapter tests; live checkout and browser interaction require verification with Paystack test credentials.
 
 References: [Paystack accept payments](https://paystack.com/docs/payments/accept-payments/), [verify payments](https://paystack.com/docs/payments/verify-payments/), [webhooks](https://paystack.com/docs/payments/webhooks/).
+
+### Savings and contributions
+
+Administrators manage individual funds and events at `/admin/contributions`, with separate create and edit pages. Each has a title, description, amount per member, start month, open/paused status and a schedule: one-time, monthly, quarterly or yearly. Recurrence uses calendar periods in Africa/Lagos. Schedules cannot change after payments have started; create a new fund for a different schedule. Amount changes affect new checkouts, while existing reservations retain their original amount.
+
+Members visit `/portal/savings` to choose a contribution and payment period, or deposit a chosen savings amount through Paystack. Members may pay past periods back to the start month, and cannot pay future periods or pay the same event/period twice. Recurring contributions require a member to initiate checkout; no automatic deductions occur. The previous general contribution remains available as a legacy one-time fund that administrators can edit or pause. Existing financial history is retained.
+
+Callback and webhook reconciliation verify amount, currency, customer email and reference before creating statement entries. Repeated delivery never duplicates a credit. Late payments for an already paid period and conflicting ledger references are flagged for admin reconciliation/refund. Savings and contributions do not satisfy the application-fee requirement.
+
+The online collection switch at `/admin/payments/settings` applies to all Paystack payments. Paused funds cannot start new checkouts, but outstanding payments can still settle. On Vercel configure `APP_URL=https://ikhwaan.vercel.app`, Paystack credentials, and webhook `https://ikhwaan.vercel.app/api/payments/webhook`.

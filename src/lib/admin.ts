@@ -1,3 +1,4 @@
+import { saveContributionPlan } from './contributions.ts';
 import { administrativeAccess } from './access.ts';
 import { loanAdminAction, recordRepayment, currentOffice, loanBalance, referenceInUse } from './loans.ts';
 import { randomUUID } from 'node:crypto';
@@ -7,7 +8,7 @@ import { amountInKobo } from './rules.ts';
 
 const text = (max = 500) => yup.string().trim().required().max(max);
 const schemas = {
-    'payment-settings': yup.object({ amount: text(), enabled: yup.boolean().required() }),
+    'payment-settings': yup.object({ amount: text(), enabled: yup.boolean().required(), contributionAmount: yup.string().trim().optional() }),
     'member-review': yup.object({ id: text(), status: text().oneOf(['Active', 'Suspended', 'Rejected']) }),
     transaction: yup.object({ memberId: text(), type: text().oneOf(['Savings', 'Contribution', 'Loan repayment']), amount: text(), description: text(), reference: text(100) }),
     'withdrawal-review': yup.object({ id: text(), decision: text().oneOf(['Approved', 'Rejected']), note: text(2000) }),
@@ -20,6 +21,7 @@ const schemas = {
 };
 export function adminAction(state: State, actor: Member, input: Record<string, unknown>, now = new Date()) {
     if (!administrativeAccess(actor)) throw new Error('Administrator access required.');
+    if (input.action === 'contribution-save') { saveContributionPlan(state, actor, input, now); return; }
     if (typeof input.action === 'string' && input.action.startsWith('loan-')) { loanAdminAction(state, actor, input, now); return; }
     if (input.action === 'transaction' && input.type === 'Loan repayment') { recordRepayment(state, actor, input, now); return; }
     const action = input.action as keyof typeof schemas;
@@ -37,8 +39,8 @@ export function adminAction(state: State, actor: Member, input: Record<string, u
     switch (action) {
         case 'payment-settings': {
             const body = parse('payment-settings');
-            state.paymentSettings = { enabled: body.enabled, membershipFee: amountInKobo(body.amount) };
-            audit(state, actor.id, `Membership fee: ${state.paymentSettings.membershipFee} kobo; payments ${body.enabled ? 'enabled' : 'disabled'}`);
+            state.paymentSettings = { enabled: body.enabled, membershipFee: amountInKobo(body.amount), contributionAmount: body.contributionAmount === undefined ? state.paymentSettings?.contributionAmount || 0 : body.contributionAmount ? amountInKobo(body.contributionAmount) : 0 };
+            audit(state, actor.id, `Membership fee: ${state.paymentSettings.membershipFee} kobo; contribution ${state.paymentSettings.contributionAmount} kobo; payments ${body.enabled ? 'enabled' : 'disabled'}`);
             break;
         }
         case 'member-review': {

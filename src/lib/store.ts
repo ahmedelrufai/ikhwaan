@@ -127,8 +127,14 @@ export type Loan = {
     disbursedAt?: string;
     repaid?: number;
 };
+export type ContributionPlan = {
+    id: string; title: string; description: string; amount: number;
+    frequency: 'Once' | 'Monthly' | 'Quarterly' | 'Yearly';
+    startsOn: string; active: boolean; createdAt: string;
+};
 export type Payment = {
-    purpose?: 'Membership fee' | 'Loan repayment';
+    contributionId?: string; contributionTitle?: string; contributionPeriod?: string;
+    purpose?: 'Membership fee' | 'Loan repayment' | 'Contribution' | 'Savings';
     loanId?: string;
     customerEmail?: string;
     reconciliationStatus?: 'Applied' | 'Needs review';
@@ -166,6 +172,7 @@ export type Dividend = {
     createdAt: string;
 };
 export type State = {
+    contributionPlans?: ContributionPlan[];
     emailOtps?: import('./email-otp.ts').EmailOtp[];
     memberProfiles?: import('./profiles.ts').MemberProfile[];
     loanEmails?: import('./loan-notifications.ts').LoanEmail[];
@@ -188,6 +195,7 @@ export type State = {
     paymentSettings?: {
         enabled: boolean;
         membershipFee: number;
+        contributionAmount?: number;
     };
     elections?: Election[];
     dividends?: Dividend[];
@@ -219,6 +227,7 @@ export type State = {
         status: string;
         reference?: string;
         loanId?: string;
+        contributionId?: string; contributionPeriod?: string;
     }[];
     audit: {
         id: string;

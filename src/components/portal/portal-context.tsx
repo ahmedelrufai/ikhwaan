@@ -4,7 +4,7 @@ import type { electionView } from '@/lib/admin';
 import type { Member, Loan, State, Payment, Dividend } from '@/lib/store';
 export type PortalData = {
     loanPolicy: { documentRequired: boolean }; loanRepayments: NonNullable<State['loanRepayments']>; loanApprovals: NonNullable<State['loanApprovals']>;
-    dividends: Dividend[]; elections: ReturnType<typeof electionView>[]; payments: Payment[]; paymentsEnabled: boolean; loanRepaymentsEnabled: boolean; membershipFee: number;
+    dividends: Dividend[]; elections: ReturnType<typeof electionView>[]; payments: Payment[]; paymentsEnabled: boolean; loanRepaymentsEnabled: boolean; membershipFee: number; contributionPlans: NonNullable<State['contributionPlans']>; balancePaymentsEnabled: boolean;
     member: Omit<Member, 'password'>; transactions: State['transactions']; loans: Loan[]; withdrawals: State['withdrawals']; announcements: State['announcements'];
 };
 type PortalContextValue = {

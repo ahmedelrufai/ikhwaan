@@ -9,6 +9,8 @@ test('approved members need a successful application fee payment', () => {
     assert.equal(applicationFeeRequired(member, [payment({ status: 'Pending' })]), true);
     assert.equal(applicationFeeRequired(member, [payment({ status: 'Failed' })]), true);
     assert.equal(applicationFeeRequired(member, [payment({ purpose: 'Loan repayment' })]), true);
+    assert.equal(applicationFeeRequired(member, [payment({ purpose: 'Contribution' })]), true);
+    assert.equal(applicationFeeRequired(member, [payment({ purpose: 'Savings' })]), true);
     assert.equal(applicationFeeRequired(member, [payment({ memberId: 'someone-else' })]), true);
     assert.equal(applicationFeeRequired(member, [payment({ purpose: 'Membership fee' })]), false);
     assert.equal(applicationFeeRequired(member, [payment()]), false);

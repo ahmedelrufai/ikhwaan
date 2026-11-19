@@ -1,0 +1,108 @@
+/* Final responsive layer: keep scrolling inside tables and navigation, never the page. */
+.app-shell .content>*,.app-shell .panel,.app-shell .stats-grid>*,.app-shell .overview-grid>*,.app-shell .two-stats>*,.app-shell .registration-grid>*,.app-shell .contribution-cards>*{min-width:0}
+.app-shell .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.app-shell .two-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.app-shell .overview-grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.app-shell .registration-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.app-shell .table-scroll{width:100%;min-width:0;overflow:auto;-webkit-overflow-scrolling:touch}
+.app-shell .stat-card h3{overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.app-shell .sidebar{height:100vh;height:100dvh;padding-bottom:env(safe-area-inset-bottom,0px)}
+.sidebar-close{display:none}
+.app-shell .topbar>.action-control,.app-shell .topbar>.notification{flex-shrink:0}
+.app-shell .breadcrumb{overflow:hidden}
+.app-shell .breadcrumb>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-shell .button{max-width:100%;white-space:normal;text-align:center}
+.app-shell .pagination{flex-wrap:wrap;gap:12px}
+.app-shell .pagination-controls{flex-wrap:wrap}
+.app-shell .member-detail-section dd,.app-shell .loan-member-summary dd{min-width:0;overflow-wrap:anywhere}
+.app-shell .member-offer-facts dd{white-space:normal;overflow-wrap:anywhere}
+.app-shell .payment-settings-layout>*,.app-shell .contribution-builder-layout>*{min-width:0}
+@media(max-width:1200px){
+ .app-shell .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .app-shell .overview-grid{grid-template-columns:minmax(0,1fr)}
+ .app-shell .members-toolbar,.app-shell .loan-register-toolbar{flex-wrap:wrap;gap:16px}
+ .app-shell .members-filters{flex-wrap:wrap;min-width:0}
+}
+@media(max-width:1024px){
+ .app-shell .sidebar{position:fixed;inset:0 auto 0 0;width:min(290px,calc(100vw - 40px));max-width:100%;transform:translateX(-100%);transition:transform .2s ease;z-index:1001;padding:28px 18px 0;box-shadow:none}
+ .app-shell .sidebar.open{transform:translateX(0);box-shadow:10px 0 35px #173d2c1a}
+ .app-shell .sidebar-close{position:absolute;right:12px;top:13px;display:grid;place-items:center;width:40px;height:40px;background:transparent;color:#365b47;border-radius:7px}
+ .app-shell .sidebar>.brand{padding-right:32px}
+ .app-shell .scrim{display:block;position:fixed;inset:0;z-index:1000;background:#173d2c66;width:100%;height:100%;padding:0;border:0}
+ .app-shell .main-shell{margin-left:0;width:100%;max-width:100%}
+ .app-shell .menu-button{display:grid;place-items:center;width:40px;height:40px;margin-right:8px;padding:8px;flex-shrink:0}
+ .app-shell .topbar{height:66px;padding:0 24px}
+ .app-shell .content{padding:24px 24px 32px;width:100%}
+ .app-shell .breadcrumb>strong{max-width:none}
+ .app-shell .payment-settings-layout{grid-template-columns:minmax(0,1fr)}
+ .app-shell .payment-settings-aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .app-shell .payment-settings-guidance,.app-shell .payment-settings-history{grid-column:1/-1}
+ .app-shell .loan-case-layout{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:700px){
+ .app-shell .content{padding:22px 16px 28px}
+ .app-shell .topbar{padding:0 12px}
+ .app-shell .topbar>div:first-child{flex:1;min-width:0}
+ .app-shell .breadcrumb{font-size:11px;gap:6px}
+ .app-shell .breadcrumb>strong{max-width:none}
+ .app-shell .topbar .text-button{font-size:11px;padding:8px;min-height:40px}
+ .app-shell .page-heading{margin-bottom:20px;align-items:flex-start}
+ .app-shell .page-heading h1{font-size:24px;letter-spacing:-.6px;line-height:1.4}
+ .app-shell .today{display:none}
+ .app-shell .two-stats,.app-shell .registration-grid,.app-shell .member-detail-grid{grid-template-columns:minmax(0,1fr)}
+ .app-shell .member-offer-layout,.app-shell .loan-case-columns{grid-template-columns:minmax(0,1fr)}
+ .app-shell .members-toolbar{padding:18px}
+ .app-shell .members-filters,.app-shell .member-search{width:100%;min-width:0}
+ .app-shell .members-filters>label{flex:1 1 150px;min-width:0}
+ .app-shell .members-filters input,.app-shell .members-filters select{width:100%;min-width:0}
+ .app-shell .panel-heading{flex-wrap:wrap;gap:12px}
+ .app-shell .panel-heading>.action-control{max-width:100%}
+ .app-shell .contribution-cards,.app-shell .payment-settings-aside{grid-template-columns:minmax(0,1fr)}
+ .app-shell .loan-member-summary>div,.app-shell .member-detail-section dl>div{grid-template-columns:minmax(0,1fr);gap:5px}
+ .app-shell .officials-heading,.app-shell .loan-case-heading{flex-wrap:wrap;gap:15px}
+ .app-shell .officials-heading>.button{white-space:normal}
+ .app-shell .profile-card{flex-wrap:wrap}
+ .app-shell .pagination{align-items:flex-start;padding:16px}
+ .app-shell .pagination-controls{gap:6px}
+ .app-shell .pagination-controls button{min-height:38px;min-width:38px}
+ .app-shell .activity-dialog,.app-shell .position-dialog{max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overflow:auto}
+ .app-shell .hero-card{min-height:220px}
+ .app-shell .hero-copy{padding:24px;min-width:0}
+ .app-shell .hero-copy h2{font-size:24px}
+ .app-shell .hero-copy p{max-width:260px}
+ .app-shell .page-footer{flex-wrap:wrap;gap:10px;font-size:10px}
+ /* A readable input size also prevents iOS from zooming when a field receives focus. */
+ .app-shell input:not([type=checkbox]):not([type=radio]):not([type=hidden]),.app-shell textarea,.app-shell select,.auth-form input:not(.otp-input-slots input),.onboarding-card input,.onboarding-card select{font-size:16px!important;min-width:0}
+ .app-shell .button{min-height:42px}
+ .app-shell .action-form-actions{max-width:100%}
+ .app-shell .action-submit-wrap{max-width:100%}
+ .auth{min-height:100vh;min-height:100dvh;grid-template-columns:minmax(0,1fr)}
+ .auth-story{min-height:0;padding:28px 24px;gap:16px}
+ .auth-story>div:last-child{display:none}
+ .auth-form{min-width:0;width:100%;max-width:480px;padding:32px 24px;margin:0 auto}
+ .auth-form h2{font-size:27px}
+ .auth-form>p{overflow-wrap:anywhere}
+ .onboarding-card{padding:24px 20px}
+ .onboarding-steps{gap:14px;flex-wrap:wrap}
+ .onboarding-header{flex-wrap:wrap}
+}
+@media(max-width:420px){
+ .app-shell .stats-grid,.app-shell .payment-summary-cards{grid-template-columns:minmax(0,1fr)}
+ .app-shell .stat-card{padding:18px}
+ .app-shell .stat-card h3{font-size:26px}
+ .app-shell .topbar .breadcrumb{font-size:10px}
+ .app-shell .content{padding-inline:14px}
+ .app-shell .contribution-schedule-grid{grid-template-columns:minmax(0,1fr)}
+ .app-shell .member-loan-entry>.member-loan-list-row{grid-template-columns:minmax(0,1fr);gap:12px;padding:18px}
+ .app-shell .member-loan-list-amount{text-align:left}
+ .app-shell .payment-collection-bar{flex-wrap:wrap}
+ .app-shell .payment-collection-bar>div{min-width:0}
+ .app-shell .payment-membership-fee{margin-left:0}
+ .app-shell .contribution-builder-form .action-form-actions{display:grid;grid-template-columns:1fr;width:100%}
+ .app-shell .contribution-builder-form .action-submit-wrap{width:100%}
+ .auth-form{padding:28px 18px}
+ .otp-input-slots{gap:6px}
+ .auth-form .otp-input-slots input{height:48px;font-size:22px}
+ .onboarding-card{padding:22px 16px}
+}
+@media(prefers-reduced-motion:reduce){.app-shell .sidebar{transition:none}}

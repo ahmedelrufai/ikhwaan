@@ -1,3 +1,4 @@
+import { contributionPlans } from './contributions.ts';
 import { paginate } from './pagination.ts';
 import { repaymentDashboard } from './repayment-dates.ts';
 import { policyManager, normalizedLoanStatus, expiredApplication, savedBankAccount, overdueAmount } from './loans.ts';
@@ -23,6 +24,7 @@ export const ADMIN_READ_FIELDS = {
     loans: ['members', 'loans'], 'loan-details': ['members', 'loans', 'transactions', 'loanPolicy', 'loanApprovals', 'loanRepayments'],
     repayments: ['members', 'loans'], 'loan-settings': ['members', 'loanPolicy', 'loanExceptions', 'loanEmails'],
     transactions: ['members', 'transactions'], 'new-transaction': ['members'], withdrawals: ['members', 'withdrawals'],
+    contributions: ['members', 'contributionPlans', 'paymentSettings', 'payments'],
     payments: ['members', 'payments', 'paymentSettings'], 'payment-settings': ['members', 'paymentSettings'],
     dividends: ['members', 'dividends'], 'new-dividend': ['members'], elections: ['members', 'elections'], 'new-election': ['members'],
     announcements: ['members', 'announcements'], 'new-announcement': ['members'], audit: ['members', 'audit', 'loans'],
@@ -123,8 +125,9 @@ export function adminSnapshot(state: State, actor: Member, query: URLSearchParam
         loanRepayments: all ? state.loanRepayments || [] : currentLoan ? (state.loanRepayments || []).filter(repayment => repayment.loanId === currentLoan.id) : [],
         loanExceptions: wants('loan-settings') ? state.loanExceptions || [] : [], loanPolicy: wants('loan-details', 'loan-settings') ? state.loanPolicy : undefined,
         loanEmailStatus: wants('loan-settings') && policyManager(state, actor) ? { configured: !!loanEmailConfiguration(), pending: (state.loanEmails || []).filter(email => ['Pending', 'Sending'].includes(email.status)).length, failed: (state.loanEmails || []).filter(email => email.status === 'Pending' && email.lastError).length, sent: (state.loanEmails || []).filter(email => email.status === 'Sent').length } : undefined,
+        contributionPlans: wants('contributions') ? contributionPlans(state) : [],
         paymentSettings: wants('payments', 'payment-settings') ? state.paymentSettings || { enabled: process.env.PAYMENTS_APPROVED === 'true', membershipFee: Number(process.env.MEMBERSHIP_FEE_KOBO) || 0 } : undefined,
-        paymentProviderConfigured: !!process.env.PAYSTACK_SECRET_KEY, payments: wants('payments') ? state.payments || [] : [],
+        paymentProviderConfigured: !!process.env.PAYSTACK_SECRET_KEY, payments: wants('payments', 'contributions') ? state.payments || [] : [],
         withdrawals: wants('withdrawals') ? state.withdrawals : [], announcements: wants('announcements') ? state.announcements : [],
         dividends: wants('dividends') ? state.dividends || [] : [], elections: wants('elections') ? (state.elections || []).map(election => electionView(election)) : [], audit: activities,
     };

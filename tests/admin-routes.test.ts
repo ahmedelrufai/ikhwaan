@@ -3,11 +3,15 @@ import assert from 'node:assert/strict';
 import { ADMIN_PAGES, ADMIN_ACTION_PAGES, adminHref, adminPage, adminPageTitle, safeAdminPath, adminReadForPath } from '../src/lib/admin-routes.ts';
 import { safeLoanDestination } from '../src/lib/loan-links.ts';
 test('each administration section has a distinct route and action pages keep the correct sidebar section', () => {
-    assert.equal(new Set(ADMIN_PAGES.map(page => page.href)).size, 11);
+    assert.equal(new Set(ADMIN_PAGES.map(page => page.href)).size, 12);
     for (const page of ADMIN_PAGES) {
         assert.equal(adminHref(page.name), page.href);
         assert.equal(adminPage(page.href).name, page.name);
     }
+    assert.equal(adminReadForPath('/admin/contributions/new'), 'contributions');
+    assert.equal(adminReadForPath('/admin/contributions/fund-1/edit'), 'contributions');
+    assert.equal(adminPage('/admin/contributions/fund-1/edit').name, 'Contributions');
+    assert.equal(adminPageTitle('/admin/contributions/fund-1/edit'), 'Edit contribution');
     assert.equal(adminPage('/admin/members/member-1').name, 'Members');
     assert.equal(adminPageTitle('/admin/members/member-1'), 'Member details');
     assert.equal(adminPage('/admin/loans/loan-1').name, 'Loans');
@@ -18,7 +22,7 @@ test('admin sign-in preserves allowed pages and never grants members administrat
     const admin = { role: 'admin', status: 'Active' } as const;
     const member = { role: 'member', status: 'Active' } as const;
     const official = { ...member, office: 'Treasurer' } as const;
-    const routes = [...ADMIN_PAGES.map(page => page.href), ...Object.keys(ADMIN_ACTION_PAGES), '/admin/members/member-1', '/admin/loans/loan-1', '/admin/audit?search=Loan%20approved'];
+    const routes = [...ADMIN_PAGES.map(page => page.href), ...Object.keys(ADMIN_ACTION_PAGES), '/admin/members/member-1', '/admin/loans/loan-1', '/admin/contributions/fund-1/edit', '/admin/audit?search=Loan%20approved'];
     for (const path of routes) {
         assert.ok(safeAdminPath(path), path);
         assert.equal(safeLoanDestination(path, admin), path);

@@ -1,6 +1,6 @@
 import { paystackRequest as paystack, paystackCheckout } from '@/lib/paystack';
 import { memberDashboardAllowed } from '@/lib/access';
-import { paymentConfiguration, reconcilePayment, reserveLoanPayment, membershipPayment } from '@/lib/payments';
+import { paymentConfiguration, reconcilePayment, reserveLoanPayment, reserveBalancePayment, membershipPayment, paymentNeedsLedgerCredit } from '@/lib/payments';
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { currentMember, rateLimit, sameOrigin } from '@/lib/auth';
@@ -18,6 +18,23 @@ export async function POST(request: Request) { if (!sameOrigin(request))
     const body = await request.json();
     if (!body || typeof body !== 'object') throw new Error('Invalid payment request.');
     const config = await settings(body.action === 'initialize');
+    if (body.action === 'initialize-contribution' || body.action === 'initialize-savings') {
+        const purpose = body.action === 'initialize-contribution' ? 'Contribution' : 'Savings';
+        const payment = await withState(state => {
+            const fresh = state.members.find(m => m.id === member.id);
+            if (!fresh) throw new Error('Account not found.');
+            return reserveBalancePayment(state, fresh, purpose, body.amount, new Date(), body.contributionId, body.period);
+        }, true);
+        if (payment.checkoutUrl) return NextResponse.json({ url: payment.checkoutUrl });
+        try {
+            const result = await paystack('/transaction/initialize', config.key, { email: payment.customerEmail, amount: payment.amount, currency: payment.currency, reference: payment.reference, metadata: { purpose, contributionId: payment.contributionId, period: payment.contributionPeriod }, callback_url: request.headers.get('origin') + '/portal/payments?payment_reference=' + encodeURIComponent(payment.reference) });
+            const url = paystackCheckout(result, payment.reference);
+            await withState(state => { const stored = state.payments?.find(p => p.reference === payment.reference); if (!stored) throw new Error('Payment not found.'); stored.checkoutUrl = url; }, true);
+            return NextResponse.json({ url });
+        } catch {
+            return NextResponse.json({ error: 'Checkout could not be opened. Verify this pending payment before retrying or contact the cooperative.', reference: payment.reference }, { status: 502 });
+        }
+    }
     if (body.action === 'initialize-loan') {
         const payment = await withState(state => {
             const fresh = state.members.find(m => m.id === member.id);
@@ -66,12 +83,12 @@ export async function POST(request: Request) { if (!sameOrigin(request))
         const payment = await withState(state => state.payments?.find(p => p.reference === reference && p.memberId === member.id));
         if (!payment)
             throw new Error('Payment was not found.');
-        if (payment.status === 'Successful') return NextResponse.json({ status: payment.status, reconciliationStatus: payment.reconciliationStatus, message: payment.reconciliationNote, loanId: payment.loanId, redirectTo: membershipPayment(payment) ? '/portal' : undefined });
+        if (payment.status === 'Successful' && !paymentNeedsLedgerCredit(payment)) return NextResponse.json({ status: payment.status, reconciliationStatus: payment.reconciliationStatus, message: payment.reconciliationNote, loanId: payment.loanId, redirectTo: payment.reconciliationStatus === 'Needs review' ? undefined : membershipPayment(payment) ? '/portal' : payment.purpose === 'Savings' || payment.purpose === 'Contribution' ? '/portal/savings' : undefined });
         const verified = await paystack('/transaction/verify/' + encodeURIComponent(reference), config.key);
         if (verified.reference !== reference || verified.amount !== payment.amount || verified.currency !== payment.currency || verified.customer?.email?.toLowerCase() !== (payment.customerEmail || member.email).toLowerCase())
             throw new Error('Payment details do not match.');
         const settled = await withState(state => reconcilePayment(state, verified), true);
-        return NextResponse.json({ status: settled.status, reconciliationStatus: settled.reconciliationStatus, message: settled.reconciliationNote, loanId: settled.loanId, redirectTo: settled.status === 'Successful' && membershipPayment(settled) ? '/portal' : undefined });
+        return NextResponse.json({ status: settled.status, reconciliationStatus: settled.reconciliationStatus, message: settled.reconciliationNote, loanId: settled.loanId, redirectTo: settled.status === 'Successful' && settled.reconciliationStatus !== 'Needs review' ? membershipPayment(settled) ? '/portal' : settled.purpose === 'Savings' || settled.purpose === 'Contribution' ? '/portal/savings' : undefined : undefined });
     }
     throw new Error('Unknown payment action.');
 }

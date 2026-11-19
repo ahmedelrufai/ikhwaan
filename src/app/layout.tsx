@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './ui-consistency.css';
+import './responsive.css';
 import NextTopLoader from 'nextjs-toploader';
 export const metadata: Metadata = { title: 'Ikhwaan Cooperative', description: 'The membership and financial self-service portal for Ikhwaan Multipurpose Cooperative Society.' };
 export default function RootLayout({ children }: {
