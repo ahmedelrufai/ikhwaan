@@ -1,0 +1,8 @@
+'use client';
+import { useAdminWorkspace, money, Empty } from './admin-context';
+import { ChevronRight, Users, Wallet, HandCoins, FileText } from 'lucide-react';
+import RepaymentDashboard from '@/components/repayment-dashboard';
+export default function OverviewPage() {
+    const { data, pendingLoans, pendingMembers, activities, loans, activityRow, changeView } = useAdminWorkspace();
+    return <><><div className="stats-grid admin-overview-stats">{[{ title: 'Members', value: data.members.length, target: 'Members', icon: Users, color: 'green' }, { title: 'Applications', value: pendingMembers.length, target: 'Members', icon: FileText, color: 'blue' }, { title: 'Pending loans', value: pendingLoans.length, target: 'Loans', icon: HandCoins, color: 'orange' }, { title: 'Outstanding loans', value: money(data.members.reduce((sum, m) => sum + m.outstanding, 0)), target: 'Loans', icon: Wallet, color: 'purple' }].map(({ icon: Icon, ...s }) => <button className="stat-card admin-stat" key={s.title} onClick={() => changeView(s.target)}><div className="admin-stat-heading"><span>{s.title}</span><span className={'stat-icon ' + s.color}><Icon size={19}/></span></div><h3>{s.value}</h3><ChevronRight className="admin-stat-arrow" size={16}/></button>)}</div><RepaymentDashboard snapshot={data.repaymentDashboard} members={data.members} compact onMore={() => changeView('Repayments')}/><section className="panel activity-panel"><div className="panel-heading"><h2>Recent activity</h2><button className="activity-more" onClick={() => changeView('Audit')}>More<ChevronRight size={16}/></button></div>{activities.slice(0, 5).map(activityRow)}{!activities.length && <Empty/>}</section></></>;
+}
